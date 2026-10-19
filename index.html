@@ -191,7 +191,7 @@
     @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
     /* ==========================================================================
-       4.1 首頁 / 旅程建立 (Page 1)
+       4.1 首頁 / 旅程建立
        ========================================================================== */
     .hero {
       text-align: center;
@@ -216,7 +216,7 @@
     .trip-card-footer { display: flex; justify-content: space-between; align-items: center; margin-top: 1.5rem; border-top: 1px solid var(--border-color); padding-top: 1rem; }
 
     /* ==========================================================================
-       4.2 截圖上傳與景點辨識頁 (Page 2)
+       4.2 截圖上傳頁
        ========================================================================== */
     .upload-dropzone {
       border: 2px dashed var(--secondary-green);
@@ -269,7 +269,7 @@
     @keyframes spin { to { transform: rotate(360deg); } }
 
     /* ==========================================================================
-       4.3 景點確認清單 (Page 3)
+       4.3 景點確認清單
        ========================================================================== */
     .places-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1.5rem; }
     .place-card { display: flex; flex-direction: column; overflow: hidden; position: relative; }
@@ -278,7 +278,7 @@
     .place-status { position: absolute; top: 10px; right: 10px; z-index: 2; }
 
     /* ==========================================================================
-       4.4 行程規劃主畫面 (Page 4)
+       4.4 行程規劃主畫面
        ========================================================================== */
     .itinerary-header {
       background: white;
@@ -371,7 +371,7 @@
     .map-pin:hover { transform: scale(1.2); z-index: 10; }
     .map-pin.active { background: var(--primary-green); transform: scale(1.3); }
 
-    /* 4.5 AI 行程建議面板 */
+    /* AI 行程建議面板 */
     .ai-panel {
       background: #faf8f5;
       border: 1px dashed var(--accent-orange);
@@ -381,9 +381,7 @@
     }
     .ai-panel-header { display: flex; align-items: center; gap: 0.5rem; font-weight: 700; color: var(--accent-orange); margin-bottom: 0.5rem; }
 
-    /* ==========================================================================
-       3.4 響應式設計 (Mobile Responsive)
-       ========================================================================== */
+    /* 響應式設計 (Mobile Responsive) */
     .mobile-tab-bar { display: none; margin-bottom: 1rem; }
     @media (max-width: 900px) {
       .planner-layout { grid-template-columns: 1fr; }
@@ -413,9 +411,7 @@
   </header>
 
   <main>
-    <!-- ==========================================================================
-       頁面 1：我的旅程與建立旅程 (4.1)
-       ========================================================================== -->
+    <!-- 頁面 1：我的旅程與建立旅程 -->
     <section id="trips-page" class="page active">
       <div class="hero">
         <h1>社群截圖，一鍵秒變完美旅程</h1>
@@ -431,14 +427,10 @@
         <span id="save-status-tag" class="tag tag-gray">已自動儲存至本機</span>
       </div>
 
-      <div id="trips-grid" class="trips-grid">
-        <!-- 旅程卡片動態渲染 -->
-      </div>
+      <div id="trips-grid" class="trips-grid"></div>
     </section>
 
-    <!-- ==========================================================================
-       頁面 2：截圖上傳與景點辨識頁 (4.2)
-       ========================================================================== -->
+    <!-- 頁面 2：截圖上傳與景點辨識頁 -->
     <section id="upload-page" class="page">
       <div style="margin-bottom: 2rem;">
         <button class="btn btn-secondary btn-sm" onclick="app.navigateTo('trips-page')">← 返回旅程清單</button>
@@ -469,9 +461,7 @@
       </div>
     </section>
 
-    <!-- ==========================================================================
-       頁面 3：景點確認清單 (4.3)
-       ========================================================================== -->
+    <!-- 頁面 3：景點確認清單 -->
     <section id="places-page" class="page">
       <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem;">
         <div>
@@ -484,14 +474,10 @@
         </div>
       </div>
 
-      <div class="places-grid" id="places-grid">
-        <!-- 景點卡片動態渲染 -->
-      </div>
+      <div class="places-grid" id="places-grid"></div>
     </section>
 
-    <!-- ==========================================================================
-       頁面 4：行程規劃主畫面 (4.4 & 4.5)
-       ========================================================================== -->
+    <!-- 頁面 4：行程規劃主畫面 -->
     <section id="planner-page" class="page">
       <div class="itinerary-header">
         <div>
@@ -510,7 +496,7 @@
         </div>
       </div>
 
-      <!-- 模擬 AI 建議面板 (4.5) -->
+      <!-- 模擬 AI 建議面板 -->
       <div class="ai-panel" id="ai-panel" style="display: none;">
         <div class="ai-panel-header">
           💡 模擬 AI 行程優化建議
@@ -525,7 +511,7 @@
       <!-- 日期切換頁籤 -->
       <div class="day-selector" id="day-selector"></div>
 
-      <!-- 手機版頁籤切換 (3.4) -->
+      <!-- 手機版頁籤切換 -->
       <div class="mobile-tab-bar">
         <button class="btn btn-secondary btn-sm active" id="mtab-timeline" onclick="app.switchMobileTab('timeline')">時間軸行程</button>
         <button class="btn btn-secondary btn-sm" id="mtab-map" onclick="app.switchMobileTab('map')">地圖路線</button>
@@ -537,11 +523,9 @@
         <div class="planner-section mobile-active" id="section-timeline">
           <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
             <h3>每日行程時間軸</h3>
-            <span style="font-size: 0.8rem; color: var(--text-muted);">💡 可上下拖曳或點選按鈕調整順序</span>
+            <button class="btn btn-primary btn-sm" onclick="app.openAddCustomItineraryModal()">➕ 手動新增行程至本日</button>
           </div>
-          <div class="timeline" id="timeline-container">
-            <!-- 時間軸項目動態渲染 -->
-          </div>
+          <div class="timeline" id="timeline-container"></div>
         </div>
 
         <!-- 地圖區域 -->
@@ -550,9 +534,7 @@
             <div class="map-header">
               🗺️ 示意地圖（僅作模擬區域標記對應，非真實地理導航）
             </div>
-            <div class="map-viewport" id="map-viewport">
-              <!-- 地圖 Pin 點動態渲染 -->
-            </div>
+            <div class="map-viewport" id="map-viewport"></div>
           </div>
         </div>
       </div>
@@ -645,19 +627,69 @@
     </div>
   </div>
 
+  <!-- ✨ 新增：手動加入行程至當前日期 Modal -->
+  <div class="modal-overlay" id="modal-custom-itinerary">
+    <div class="modal">
+      <div class="modal-header">
+        <h3>新增自訂行程項目 (至本日)</h3>
+        <button style="background:none; border:none; font-size:1.2rem; cursor:pointer;" onclick="app.closeModal('modal-custom-itinerary')">✕</button>
+      </div>
+      <form onsubmit="app.handleSaveCustomItinerary(event)">
+        <div class="form-group">
+          <label>行程/活動名稱 *</label>
+          <input type="text" id="custom-item-name" class="form-control" placeholder="例：飯店 Check-in / 機場接送 / 心齋橋自由逛街" required>
+        </div>
+        <div class="form-group">
+          <label>分類類型</label>
+          <select id="custom-item-category" class="form-control">
+            <option value="🏨 住宿/Check-in">🏨 住宿 / Check-in</option>
+            <option value="🚆 交通/機場">🚆 交通 / 機場</option>
+            <option value="🛍️ 購物/逛街">🛍️ 購物 / 逛街</option>
+            <option value="☕ 休息/自由時間">☕ 休息 / 自由時間</option>
+            <option value="📍 景點">📍 景點 / 其它活動</option>
+          </select>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>開始時間 *</label>
+            <input type="time" id="custom-item-starttime" class="form-control" value="14:00" required>
+          </div>
+          <div class="form-group">
+            <label>停留/活動時間 (分鐘)</label>
+            <input type="number" id="custom-item-duration" class="form-control" value="60">
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>預估交通時間 (分鐘)</label>
+            <input type="number" id="custom-item-travel" class="form-control" value="15">
+          </div>
+          <div class="form-group">
+            <label>預估費用 (TWD)</label>
+            <input type="number" id="custom-item-cost" class="form-control" value="0">
+          </div>
+        </div>
+        <div class="form-group">
+          <label>備註</label>
+          <input type="text" id="custom-item-notes" class="form-control" placeholder="例：憑預訂號碼入住 / 記得購買特急票">
+        </div>
+        <div style="display: flex; justify-content: flex-end; gap: 0.5rem; margin-top: 1rem;">
+          <button type="button" class="btn btn-secondary" onclick="app.closeModal('modal-custom-itinerary')">取消</button>
+          <button type="submit" class="btn btn-primary">新增至當日行程</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
   <!-- Toast 訊息容器 -->
   <div id="toast-container"></div>
 
   <!-- ==========================================================================
-       JavaScript 核心 logic (storage.js, data.js, app.js 整合)
+       JavaScript 核心 logic
        ========================================================================== -->
   <script>
-    /* --------------------------------------------------------------------------
-       6. 資料模型與 7. 本機儲存 (storage.js & data.js)
-       -------------------------------------------------------------------------- */
     const STORAGE_KEY = 'travel_planner_app_data_v1';
 
-    // 預設示範旅程資料 (6. Data Models)
     const DEMO_DATA = {
       trips: [
         {
@@ -784,7 +816,6 @@
       ]
     };
 
-    // Storage 儲存控制器
     const Storage = {
       load() {
         try {
@@ -806,14 +837,11 @@
           }
         } catch (e) {
           console.error('儲存至 localStorage 失敗', e);
-          app.toast('⚠️ 本機儲存失敗，容量可能已滿');
+          app.toast('⚠️ 本機儲存失敗');
         }
       }
     };
 
-    /* --------------------------------------------------------------------------
-       5. 應用程式核心邏輯 (app.js)
-       -------------------------------------------------------------------------- */
     class TravelPlannerApp {
       constructor() {
         this.data = Storage.load();
@@ -830,7 +858,6 @@
         this.setupDragAndDrop();
       }
 
-      // 頁面切換控制器 (5.1)
       navigateTo(pageId) {
         document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
         document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
@@ -859,7 +886,6 @@
         setTimeout(() => el.remove(), 3000);
       }
 
-      // 4.1 首頁 / 旅程管理
       renderTripsList() {
         const grid = document.getElementById('trips-grid');
         grid.innerHTML = '';
@@ -956,7 +982,6 @@
         const trip = this.getTrip();
         if (!trip) return;
 
-        // 啟用導覽列按鈕
         ['nav-upload', 'nav-places', 'nav-planner'].forEach(id => {
           document.getElementById(id).disabled = false;
         });
@@ -969,7 +994,6 @@
         return this.data.trips.find(t => t.id === this.currentTripId);
       }
 
-      // 4.2 截圖上傳與模擬 AI 辨識
       setupDragAndDrop() {
         const dropzone = document.getElementById('dropzone');
         if (!dropzone) return;
@@ -1044,7 +1068,6 @@
         this.renderUploadPreviews();
       }
 
-      // 4.2 模擬 AI 辨識流程
       startAiRecognition() {
         document.getElementById('preview-container').style.display = 'none';
         document.getElementById('ai-loading').style.display = 'block';
@@ -1052,7 +1075,6 @@
         setTimeout(() => {
           document.getElementById('ai-loading').style.display = 'none';
 
-          // 模擬從上傳截圖辨識出的景點資料
           const mockExtractedPlaces = [
             {
               id: 'place-mock-' + Date.now() + '-1',
@@ -1087,7 +1109,6 @@
             this.data.places.push(p);
             trip.placeIds.push(p.id);
 
-            // 自動加至最後一天的行程
             const newItem = {
               id: 'item-' + Date.now() + Math.random().toString(36).substr(2, 4),
               tripDay: trip.endDate,
@@ -1111,7 +1132,6 @@
         }, 1800);
       }
 
-      // 4.3 景點確認清單頁面
       renderPlacesList() {
         const grid = document.getElementById('places-grid');
         grid.innerHTML = '';
@@ -1215,7 +1235,6 @@
         const cost = Number(document.getElementById('place-cost').value) || 0;
 
         if (id) {
-          // 編輯
           const place = this.data.places.find(p => p.id === id);
           if (place) {
             place.name = name;
@@ -1224,7 +1243,6 @@
             place.estimatedCost = cost;
           }
         } else {
-          // 新增
           const newPlace = {
             id: 'place-' + Date.now(),
             name,
@@ -1243,7 +1261,6 @@
           const trip = this.getTrip();
           if (trip) {
             trip.placeIds.push(newPlace.id);
-            // 同時新增至第一個行程日
             const newItem = {
               id: 'item-' + Date.now(),
               tripDay: trip.startDate,
@@ -1268,7 +1285,75 @@
         this.toast('景點資訊已儲存');
       }
 
-      // 4.4 行程規劃主畫面與 5.3 時間衝突檢查
+      // ✨ 新增：手動加入行程至當前選取日期 Modal 操作
+      openAddCustomItineraryModal() {
+        document.getElementById('custom-item-name').value = '';
+        document.getElementById('custom-item-starttime').value = '14:00';
+        document.getElementById('custom-item-duration').value = '60';
+        document.getElementById('custom-item-travel').value = '15';
+        document.getElementById('custom-item-cost').value = '0';
+        document.getElementById('custom-item-notes').value = '';
+        document.getElementById('modal-custom-itinerary').classList.add('active');
+      }
+
+      handleSaveCustomItinerary(e) {
+        e.preventDefault();
+        const name = document.getElementById('custom-item-name').value;
+        const category = document.getElementById('custom-item-category').value;
+        const startTime = document.getElementById('custom-item-starttime').value;
+        const duration = Number(document.getElementById('custom-item-duration').value) || 60;
+        const travel = Number(document.getElementById('custom-item-travel').value) || 15;
+        const cost = Number(document.getElementById('custom-item-cost').value) || 0;
+        const notes = document.getElementById('custom-item-notes').value;
+
+        // 建立假景點物件（作為自訂行程載體）
+        const newPlace = {
+          id: 'place-custom-' + Date.now(),
+          name: `${category.split(' ')[0]} ${name}`,
+          address: '自訂行程地點',
+          category: category,
+          image: '',
+          estimatedDuration: duration,
+          estimatedCost: cost,
+          priority: 2,
+          notes: notes,
+          verificationStatus: 'confirmed',
+          isBackup: false
+        };
+        this.data.places.push(newPlace);
+
+        const trip = this.getTrip();
+        if (trip) {
+          trip.placeIds.push(newPlace.id);
+
+          // 計算當前日期的最大排序順序
+          const dayItems = this.data.itineraryItems.filter(i => trip.itineraryIds.includes(i.id) && i.tripDay === this.currentSelectedDay);
+          const maxSort = dayItems.reduce((max, item) => Math.max(max, item.sortOrder || 0), 0);
+
+          const newItem = {
+            id: 'item-custom-' + Date.now(),
+            tripDay: this.currentSelectedDay,
+            placeId: newPlace.id,
+            startTime: startTime,
+            endTime: this.addMinutes(startTime, duration),
+            durationMinutes: duration,
+            travelTimeFromPrevious: travel,
+            notes: notes,
+            isPlaceLocked: false,
+            isTimeLocked: false,
+            sortOrder: maxSort + 1
+          };
+
+          this.data.itineraryItems.push(newItem);
+          trip.itineraryIds.push(newItem.id);
+        }
+
+        Storage.save(this.data);
+        this.closeModal('modal-custom-itinerary');
+        this.renderPlanner();
+        this.toast('➕ 已新增自訂行程至本日！');
+      }
+
       renderPlanner() {
         const trip = this.getTrip();
         if (!trip) return;
@@ -1276,19 +1361,10 @@
         document.getElementById('planner-trip-name').textContent = trip.name;
         document.getElementById('planner-trip-meta').textContent = `${trip.startDate} ~ ${trip.endDate} | 城市：${trip.city}`;
 
-        // 渲染日期頁籤
         this.renderDaySelector(trip);
-
-        // 渲染每日行程時間軸
         this.renderTimeline();
-
-        // 渲染示意地圖標記
         this.renderMapPins();
-
-        // 計算預算
         this.updateBudgetSummary();
-
-        // 觸發時間衝突檢查
         this.checkTimeConflicts();
       }
 
@@ -1316,23 +1392,21 @@
         const trip = this.getTrip();
         if (!trip) return;
 
-        // 篩選出目前選擇日期的行程
         let dayItems = this.data.itineraryItems.filter(i => trip.itineraryIds.includes(i.id) && i.tripDay === this.currentSelectedDay);
         dayItems.sort((a, b) => a.sortOrder - b.sortOrder);
 
         if (dayItems.length === 0) {
-          container.innerHTML = `<p style="text-align:center; color: var(--text-muted); padding:2rem;">本日尚無安排景點，可前往景點頁新增。</p>`;
+          container.innerHTML = `<p style="text-align:center; color: var(--text-muted); padding:2rem;">本日尚無安排行程，點選右上角「➕ 手動新增行程」或前往景點頁加入。</p>`;
           return;
         }
 
         dayItems.forEach((item, index) => {
-          const place = this.data.places.find(p => p.id === item.placeId) || { name: '未知景點', estimatedCost: 0 };
+          const place = this.data.places.find(p => p.id === item.placeId) || { name: '自訂項目', estimatedCost: 0 };
           const card = document.createElement('div');
           card.className = `timeline-item ${item.hasConflict ? 'has-conflict' : ''}`;
           card.draggable = true;
           card.dataset.index = index;
 
-          // 綁定拖曳事件 (5.2)
           card.ondragstart = (e) => this.handleDragStart(e, index);
           card.ondragover = (e) => e.preventDefault();
           card.ondrop = (e) => this.handleDrop(e, index);
@@ -1348,8 +1422,9 @@
                 ${item.isPlaceLocked ? '🔒' : ''}
               </div>
               <div style="font-size:0.8rem; color:var(--text-muted);">
-                ⏱️ 停留 ${item.durationMinutes} 分鐘 | 預估交通: ${item.travelTimeFromPrevious || 15} 分鐘
+                ⏱️ 停留/活動 ${item.durationMinutes} 分鐘 | 預估交通: ${item.travelTimeFromPrevious || 15} 分鐘 ${place.estimatedCost ? `| 💰 NT$ ${place.estimatedCost}` : ''}
               </div>
+              ${item.notes ? `<div style="font-size:0.75rem; color:var(--text-muted); margin-top:0.2rem;">📝 ${this.escapeHtml(item.notes)}</div>` : ''}
               ${item.hasConflict ? `<div style="font-size:0.75rem; color:#d9534f; margin-top:0.2rem;">⚠️ 警告：行程時間重疊或過於緊湊</div>` : ''}
             </div>
             <div class="item-actions">
@@ -1363,7 +1438,6 @@
         });
       }
 
-      // 5.2 拖曳與排序
       handleDragStart(e, index) {
         this.draggedItemIndex = index;
         e.dataTransfer.effectAllowed = 'move';
@@ -1381,7 +1455,6 @@
         dayItems.splice(this.draggedItemIndex, 1);
         dayItems.splice(targetIndex, 0, movedItem);
 
-        // 重新分配 sortOrder
         dayItems.forEach((item, idx) => {
           item.sortOrder = idx + 1;
         });
@@ -1389,7 +1462,7 @@
         Storage.save(this.data);
         this.renderTimeline();
         this.renderMapPins();
-        this.toast('已更新景點順序');
+        this.toast('已更新行程順序');
       }
 
       moveItem(itemId, direction) {
@@ -1412,7 +1485,6 @@
         this.renderMapPins();
       }
 
-      // 5.3 時間編輯與衝突檢查
       updateItemTime(itemId, newStartTime) {
         const item = this.data.itineraryItems.find(i => i.id === itemId);
         if (!item) return;
@@ -1453,7 +1525,6 @@
           }
         }
 
-        // 觸發 AI 建議面板 (4.5)
         const aiPanel = document.getElementById('ai-panel');
         if (hasAnyConflict) {
           aiPanel.style.display = 'block';
@@ -1483,7 +1554,6 @@
         this.toast('🤖 AI 已經重構今日行程時間線');
       }
 
-      // 5.4 鎖定功能
       toggleLock(itemId) {
         const item = this.data.itineraryItems.find(i => i.id === itemId);
         if (item) {
@@ -1505,7 +1575,6 @@
         this.toast('已從行程中移除');
       }
 
-      // 4.4 示意地圖標記對應
       renderMapPins() {
         const viewport = document.getElementById('map-viewport');
         viewport.innerHTML = '';
@@ -1516,13 +1585,13 @@
         let dayItems = this.data.itineraryItems.filter(i => trip.itineraryIds.includes(i.id) && i.tripDay === this.currentSelectedDay);
         dayItems.sort((a, b) => a.sortOrder - b.sortOrder);
 
-        // 預設示意座標分佈 (靜態呈現)
         const mockPositions = [
           { top: '30%', left: '40%' },
           { top: '55%', left: '60%' },
           { top: '40%', left: '25%' },
           { top: '70%', left: '35%' },
-          { top: '25%', left: '70%' }
+          { top: '25%', left: '70%' },
+          { top: '80%', left: '50%' }
         ];
 
         dayItems.forEach((item, idx) => {
@@ -1534,10 +1603,10 @@
           pin.style.top = pos.top;
           pin.style.left = pos.left;
           pin.textContent = idx + 1;
-          pin.title = `${idx + 1}. ${place ? place.name : '景點'}`;
+          pin.title = `${idx + 1}. ${place ? place.name : '自訂行程'}`;
 
           pin.onclick = () => {
-            alert(`📍 景點 ${idx + 1}：${place ? place.name : ''}\n停留時間：${item.durationMinutes} 分鐘`);
+            alert(`📍 行程 ${idx + 1}：${place ? place.name : ''}\n停留時間：${item.durationMinutes} 分鐘`);
           };
 
           viewport.appendChild(pin);
@@ -1567,13 +1636,12 @@
         document.getElementById('section-map').classList.toggle('mobile-active', tab === 'map');
       }
 
-      // Phase 5：匯出功能 (CSV & PDF/Print)
       exportCsv() {
         const trip = this.getTrip();
         if (!trip) return;
 
         let csvContent = "data:text/csv;charset=utf-8,\uFEFF";
-        csvContent += "日期,時間,景點名稱,預估停留(分),預估費用(TWD),備註\n";
+        csvContent += "日期,時間,行程/景點名稱,預估停留(分),預估費用(TWD),備註\n";
 
         const items = this.data.itineraryItems.filter(i => trip.itineraryIds.includes(i.id));
         items.sort((a, b) => a.tripDay.localeCompare(b.tripDay) || a.sortOrder - b.sortOrder);
@@ -1605,7 +1673,6 @@
         window.print();
       }
 
-      // 輔助工具
       addMinutes(timeStr, mins) {
         const [h, m] = timeStr.split(':').map(Number);
         const date = new Date(2000, 0, 1, h, m + mins);
@@ -1630,7 +1697,6 @@
       }
     }
 
-    // 初始化 App 全域實例
     const app = new TravelPlannerApp();
   </script>
 </body>

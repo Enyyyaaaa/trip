@@ -1,0 +1,1637 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>社群截圖轉旅遊行程 Web App (GitHub Pages Prototype)</title>
+  <style>
+    /* ==========================================================================
+       3. 視覺設計規範 - 顏色與全站樣式
+       ========================================================================== */
+    :root {
+      --bg-main: #F7F5EF;
+      --bg-card: #FFFFFF;
+      --primary-green: #294D3B;
+      --secondary-green: #A9B9A2;
+      --accent-orange: #D98655;
+      --text-main: #292D29;
+      --text-muted: #777A72;
+      --border-color: #E7E4DA;
+      --radius-sm: 8px;
+      --radius-md: 14px;
+      --radius-lg: 20px;
+      --shadow-soft: 0 4px 20px rgba(0, 0, 0, 0.05);
+      --shadow-hover: 0 8px 30px rgba(0, 0, 0, 0.09);
+      --font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "PingFang TC", "Noto Sans TC", sans-serif;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background-color: var(--bg-main);
+      color: var(--text-main);
+      font-family: var(--font-family);
+      line-height: 1.6;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+
+    /* 導覽列 */
+    header {
+      background-color: var(--bg-card);
+      border-bottom: 1px solid var(--border-color);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .nav-container {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 1rem 1.5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      font-weight: 700;
+      font-size: 1.25rem;
+      color: var(--primary-green);
+      text-decoration: none;
+    }
+    .logo-badge {
+      background-color: var(--secondary-green);
+      color: white;
+      font-size: 0.75rem;
+      padding: 0.2rem 0.6rem;
+      border-radius: 20px;
+    }
+    nav { display: flex; gap: 0.5rem; }
+    .nav-btn {
+      background: transparent;
+      border: none;
+      padding: 0.6rem 1.2rem;
+      border-radius: var(--radius-sm);
+      color: var(--text-muted);
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+    .nav-btn:hover { background-color: rgba(169, 185, 162, 0.15); color: var(--primary-green); }
+    .nav-btn.active { background-color: var(--primary-green); color: white; }
+
+    /* 主要容器 */
+    main { flex: 1; max-width: 1280px; width: 100%; margin: 0 auto; padding: 2rem 1.5rem; }
+    .page { display: none; }
+    .page.active { display: block; }
+
+    /* 通用元件 */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      padding: 0.75rem 1.5rem;
+      border-radius: var(--radius-sm);
+      font-weight: 600;
+      cursor: pointer;
+      border: 1px solid transparent;
+      transition: all 0.2s ease;
+    }
+    .btn-primary { background-color: var(--primary-green); color: white; }
+    .btn-primary:hover { opacity: 0.92; transform: translateY(-1px); }
+    .btn-secondary { background-color: white; border-color: var(--border-color); color: var(--text-main); }
+    .btn-secondary:hover { background-color: #f0eee6; }
+    .btn-accent { background-color: var(--accent-orange); color: white; }
+    .btn-accent:hover { opacity: 0.9; }
+    .btn-danger { background-color: #d9534f; color: white; }
+    .btn-sm { padding: 0.4rem 0.8rem; font-size: 0.85rem; }
+
+    .card {
+      background: var(--bg-card);
+      border-radius: var(--radius-md);
+      border: 1px solid var(--border-color);
+      box-shadow: var(--shadow-soft);
+      padding: 1.5rem;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .card:hover { box-shadow: var(--shadow-hover); }
+
+    .tag {
+      display: inline-block;
+      padding: 0.25rem 0.6rem;
+      border-radius: 6px;
+      font-size: 0.75rem;
+      font-weight: 600;
+    }
+    .tag-green { background: #eef4f0; color: var(--primary-green); }
+    .tag-orange { background: #fdf2eb; color: var(--accent-orange); }
+    .tag-gray { background: #f0f0ee; color: var(--text-muted); }
+
+    /* 彈出視窗 Modal */
+    .modal-overlay {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.4);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      backdrop-filter: blur(2px);
+    }
+    .modal-overlay.active { display: flex; }
+    .modal {
+      background: white;
+      border-radius: var(--radius-md);
+      padding: 2rem;
+      max-width: 540px;
+      width: 90%;
+      max-height: 90vh;
+      overflow-y: auto;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+    }
+    .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; }
+    .form-group { margin-bottom: 1.25rem; }
+    .form-group label { display: block; font-weight: 600; margin-bottom: 0.4rem; font-size: 0.9rem; }
+    .form-control {
+      width: 100%;
+      padding: 0.75rem 1rem;
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-sm);
+      font-family: inherit;
+      font-size: 0.95rem;
+    }
+    .form-control:focus { outline: none; border-color: var(--primary-green); }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+
+    /* Toast 通知 */
+    #toast-container {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      z-index: 2000;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .toast {
+      background: var(--text-main);
+      color: white;
+      padding: 0.8rem 1.4rem;
+      border-radius: var(--radius-sm);
+      box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+      font-size: 0.9rem;
+      animation: fadeIn 0.3s ease;
+    }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+    /* ==========================================================================
+       4.1 首頁 / 旅程建立 (Page 1)
+       ========================================================================== */
+    .hero {
+      text-align: center;
+      padding: 3rem 1rem;
+      background: linear-gradient(180deg, rgba(169, 185, 162, 0.1) 0%, rgba(247, 245, 239, 0) 100%);
+      border-radius: var(--radius-lg);
+      margin-bottom: 3rem;
+    }
+    .hero h1 { font-size: 2.5rem; color: var(--primary-green); margin-bottom: 1rem; }
+    .hero p { color: var(--text-muted); font-size: 1.1rem; max-width: 600px; margin: 0 auto 2rem; }
+    .hero-actions { display: flex; gap: 1rem; justify-content: center; }
+
+    .trips-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; }
+    .trips-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 1.5rem; }
+    .trip-card {
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      position: relative;
+    }
+    .trip-card-meta { display: flex; gap: 0.5rem; margin-top: 0.5rem; flex-wrap: wrap; }
+    .trip-card-footer { display: flex; justify-content: space-between; align-items: center; margin-top: 1.5rem; border-top: 1px solid var(--border-color); padding-top: 1rem; }
+
+    /* ==========================================================================
+       4.2 截圖上傳與景點辨識頁 (Page 2)
+       ========================================================================== */
+    .upload-dropzone {
+      border: 2px dashed var(--secondary-green);
+      background: rgba(255, 255, 255, 0.7);
+      border-radius: var(--radius-md);
+      padding: 3rem;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      margin-bottom: 2rem;
+    }
+    .upload-dropzone:hover, .upload-dropzone.dragover {
+      background: white;
+      border-color: var(--primary-green);
+    }
+    .preview-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 1rem; margin-bottom: 2rem; }
+    .preview-item {
+      position: relative;
+      height: 140px;
+      border-radius: var(--radius-sm);
+      overflow: hidden;
+      border: 1px solid var(--border-color);
+    }
+    .preview-item img { width: 100%; height: 100%; object-fit: cover; }
+    .preview-item .remove-btn {
+      position: absolute;
+      top: 5px; right: 5px;
+      background: rgba(0,0,0,0.6);
+      color: white; border: none;
+      width: 24px; height: 24px;
+      border-radius: 50%; cursor: pointer;
+    }
+
+    /* 模擬 AI 載入狀態 */
+    .ai-loading {
+      text-align: center;
+      padding: 3rem;
+      background: white;
+      border-radius: var(--radius-md);
+      display: none;
+    }
+    .spinner {
+      width: 48px; height: 48px;
+      border: 4px solid var(--border-color);
+      border-top-color: var(--accent-orange);
+      border-radius: 50%;
+      animation: spin 1s infinite linear;
+      margin: 0 auto 1.5rem;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ==========================================================================
+       4.3 景點確認清單 (Page 3)
+       ========================================================================== */
+    .places-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1.5rem; }
+    .place-card { display: flex; flex-direction: column; overflow: hidden; position: relative; }
+    .place-card-img { height: 160px; width: 100%; object-fit: cover; background-color: var(--border-color); }
+    .place-card-body { padding: 1rem; flex: 1; display: flex; flex-direction: column; }
+    .place-status { position: absolute; top: 10px; right: 10px; z-index: 2; }
+
+    /* ==========================================================================
+       4.4 行程規劃主畫面 (Page 4)
+       ========================================================================== */
+    .itinerary-header {
+      background: white;
+      padding: 1.5rem;
+      border-radius: var(--radius-md);
+      border: 1px solid var(--border-color);
+      margin-bottom: 1.5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+    .day-selector { display: flex; gap: 0.5rem; overflow-x: auto; padding-bottom: 0.5rem; margin-bottom: 1.5rem; }
+    .day-btn {
+      padding: 0.75rem 1.25rem;
+      background: white;
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      white-space: nowrap;
+      font-weight: 600;
+    }
+    .day-btn.active { background: var(--primary-green); color: white; border-color: var(--primary-green); }
+
+    /* 兩欄配置 */
+    .planner-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; align-items: start; }
+
+    /* 時間軸區域 */
+    .timeline { display: flex; flex-direction: column; gap: 1rem; }
+    .timeline-item {
+      background: white;
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      padding: 1rem 1.25rem;
+      display: flex;
+      gap: 1rem;
+      align-items: center;
+      position: relative;
+      cursor: grab;
+      transition: all 0.2s ease;
+    }
+    .timeline-item.dragging { opacity: 0.5; border: 2px dashed var(--accent-orange); }
+    .timeline-item.has-conflict { border-color: #d9534f; background-color: #fff9f9; }
+    .time-badge { font-size: 0.85rem; font-weight: 700; color: var(--primary-green); min-width: 90px; }
+    .item-content { flex: 1; }
+    .item-actions { display: flex; gap: 0.4rem; }
+
+    /* 靜態示意地圖視覺 */
+    .map-container {
+      background: #e5ece6;
+      border-radius: var(--radius-md);
+      height: 520px;
+      position: sticky;
+      top: 90px;
+      border: 1px solid var(--border-color);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+    .map-header {
+      background: rgba(255,255,255,0.9);
+      padding: 0.75rem 1rem;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      border-bottom: 1px solid var(--border-color);
+    }
+    .map-viewport {
+      flex: 1;
+      position: relative;
+      background-image: radial-gradient(var(--secondary-green) 1px, transparent 1px);
+      background-size: 20px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .map-pin {
+      position: absolute;
+      background: var(--accent-orange);
+      color: white;
+      width: 32px; height: 32px;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 700;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+      border: 2px solid white;
+      cursor: pointer;
+      transition: transform 0.2s ease;
+    }
+    .map-pin:hover { transform: scale(1.2); z-index: 10; }
+    .map-pin.active { background: var(--primary-green); transform: scale(1.3); }
+
+    /* 4.5 AI 行程建議面板 */
+    .ai-panel {
+      background: #faf8f5;
+      border: 1px dashed var(--accent-orange);
+      border-radius: var(--radius-md);
+      padding: 1rem 1.25rem;
+      margin-bottom: 1.5rem;
+    }
+    .ai-panel-header { display: flex; align-items: center; gap: 0.5rem; font-weight: 700; color: var(--accent-orange); margin-bottom: 0.5rem; }
+
+    /* ==========================================================================
+       3.4 響應式設計 (Mobile Responsive)
+       ========================================================================== */
+    .mobile-tab-bar { display: none; margin-bottom: 1rem; }
+    @media (max-width: 900px) {
+      .planner-layout { grid-template-columns: 1fr; }
+      .map-container { height: 350px; position: static; }
+      .mobile-tab-bar { display: flex; gap: 0.5rem; }
+      .mobile-tab-bar .btn { flex: 1; }
+      .planner-section { display: none; }
+      .planner-section.mobile-active { display: block; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- 頂部導覽列 -->
+  <header>
+    <div class="nav-container">
+      <a href="#" class="logo" onclick="app.navigateTo('trips-page')">
+        📍 截圖轉行程 <span class="logo-badge">原型 V1.0</span>
+      </a>
+      <nav>
+        <button class="nav-btn active" id="nav-trips" onclick="app.navigateTo('trips-page')">我的旅程</button>
+        <button class="nav-btn" id="nav-upload" onclick="app.navigateTo('upload-page')" disabled>1. 截圖上傳</button>
+        <button class="nav-btn" id="nav-places" onclick="app.navigateTo('places-page')" disabled>2. 景點整理</button>
+        <button class="nav-btn" id="nav-planner" onclick="app.navigateTo('planner-page')" disabled>3. 行程規劃</button>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <!-- ==========================================================================
+       頁面 1：我的旅程與建立旅程 (4.1)
+       ========================================================================== -->
+    <section id="trips-page" class="page active">
+      <div class="hero">
+        <h1>社群截圖，一鍵秒變完美旅程</h1>
+        <p>上傳 Reels 或 Threads 旅遊靈感截圖，自動辨識景點、規劃時間與地圖時間軸。</p>
+        <div class="hero-actions">
+          <button class="btn btn-primary" onclick="app.openNewTripModal()">✨ 建立新旅程</button>
+          <button class="btn btn-secondary" onclick="app.loadDemoTrip()">⚡ 載入京都示範旅程</button>
+        </div>
+      </div>
+
+      <div class="trips-header">
+        <h2>我的旅程清單</h2>
+        <span id="save-status-tag" class="tag tag-gray">已自動儲存至本機</span>
+      </div>
+
+      <div id="trips-grid" class="trips-grid">
+        <!-- 旅程卡片動態渲染 -->
+      </div>
+    </section>
+
+    <!-- ==========================================================================
+       頁面 2：截圖上傳與景點辨識頁 (4.2)
+       ========================================================================== -->
+    <section id="upload-page" class="page">
+      <div style="margin-bottom: 2rem;">
+        <button class="btn btn-secondary btn-sm" onclick="app.navigateTo('trips-page')">← 返回旅程清單</button>
+        <h2 style="margin-top: 0.5rem;" id="upload-page-title">上傳社群旅遊截圖</h2>
+        <p style="color: var(--text-muted);">選擇或拖曳 IG Reels、Threads 的旅遊景點畫面，系統將模擬 AI 分析提取景點名稱與資訊。</p>
+      </div>
+
+      <div class="upload-dropzone" id="dropzone" onclick="document.getElementById('file-input').click()">
+        <p style="font-size: 2rem; margin-bottom: 0.5rem;">📸</p>
+        <p style="font-weight: 700; margin-bottom: 0.25rem;">點擊或拖曳社群截圖至此處</p>
+        <p style="color: var(--text-muted); font-size: 0.85rem;">支援 JPG、PNG 多圖上傳</p>
+        <input type="file" id="file-input" multiple accept="image/*" style="display: none;" onchange="app.handleFileSelect(event)">
+      </div>
+
+      <div id="preview-container" style="display: none;">
+        <h3>已選擇圖片 (<span id="preview-count">0</span>)</h3>
+        <div class="preview-grid" id="preview-grid"></div>
+        <div style="display: flex; gap: 1rem; justify-content: flex-end;">
+          <button class="btn btn-secondary" onclick="app.clearUploads()">清空圖片</button>
+          <button class="btn btn-accent" onclick="app.startAiRecognition()">🤖 開始模擬 AI 景點辨識</button>
+        </div>
+      </div>
+
+      <div id="ai-loading" class="ai-loading">
+        <div class="spinner"></div>
+        <h3 style="color: var(--primary-green); margin-bottom: 0.5rem;">AI 正在分析截圖內容...</h3>
+        <p style="color: var(--text-muted); font-size: 0.9rem;">正在提取照片中的地標、文字標籤與最佳停留時間預估</p>
+      </div>
+    </section>
+
+    <!-- ==========================================================================
+       頁面 3：景點確認清單 (4.3)
+       ========================================================================== -->
+    <section id="places-page" class="page">
+      <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem;">
+        <div>
+          <h2>景點確認與整理</h2>
+          <p style="color: var(--text-muted);">核對辨識出的景點，您可調整停留時間、預估費用或新增備選項目。</p>
+        </div>
+        <div style="display: flex; gap: 0.5rem;">
+          <button class="btn btn-secondary btn-sm" onclick="app.openAddPlaceModal()">+ 手動新增景點</button>
+          <button class="btn btn-primary btn-sm" onclick="app.navigateTo('planner-page')">前往行程規劃 →</button>
+        </div>
+      </div>
+
+      <div class="places-grid" id="places-grid">
+        <!-- 景點卡片動態渲染 -->
+      </div>
+    </section>
+
+    <!-- ==========================================================================
+       頁面 4：行程規劃主畫面 (4.4 & 4.5)
+       ========================================================================== -->
+    <section id="planner-page" class="page">
+      <div class="itinerary-header">
+        <div>
+          <h2 id="planner-trip-name">京都秋日旅行</h2>
+          <p style="color: var(--text-muted); font-size: 0.9rem;" id="planner-trip-meta">2026-11-10 ~ 2026-11-13 | 城市：京都</p>
+        </div>
+        <div style="display: flex; gap: 1.5rem; align-items: center;">
+          <div>
+            <span style="font-size: 0.8rem; color: var(--text-muted);">當日預算使用</span>
+            <div style="font-weight: 700; color: var(--primary-green);" id="planner-budget-summary">NT$ 0 / NT$ 15,000</div>
+          </div>
+          <div style="display: flex; gap: 0.5rem;">
+            <button class="btn btn-secondary btn-sm" onclick="app.exportCsv()">📊 匯出 CSV</button>
+            <button class="btn btn-secondary btn-sm" onclick="app.exportPdf()">📄 列印/PDF</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 模擬 AI 建議面板 (4.5) -->
+      <div class="ai-panel" id="ai-panel" style="display: none;">
+        <div class="ai-panel-header">
+          💡 模擬 AI 行程優化建議
+        </div>
+        <p id="ai-panel-text" style="font-size: 0.9rem; margin-bottom: 0.75rem;">發現某些景點的時間規劃過於緊湊，建議自動微調。</p>
+        <div style="display: flex; gap: 0.5rem;">
+          <button class="btn btn-accent btn-sm" onclick="app.applyAiSuggestion()">套用建議</button>
+          <button class="btn btn-secondary btn-sm" onclick="document.getElementById('ai-panel').style.display='none'">忽略</button>
+        </div>
+      </div>
+
+      <!-- 日期切換頁籤 -->
+      <div class="day-selector" id="day-selector"></div>
+
+      <!-- 手機版頁籤切換 (3.4) -->
+      <div class="mobile-tab-bar">
+        <button class="btn btn-secondary btn-sm active" id="mtab-timeline" onclick="app.switchMobileTab('timeline')">時間軸行程</button>
+        <button class="btn btn-secondary btn-sm" id="mtab-map" onclick="app.switchMobileTab('map')">地圖路線</button>
+      </div>
+
+      <!-- 兩欄配置：時間軸與地圖 -->
+      <div class="planner-layout">
+        <!-- 每日行程時間軸 -->
+        <div class="planner-section mobile-active" id="section-timeline">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+            <h3>每日行程時間軸</h3>
+            <span style="font-size: 0.8rem; color: var(--text-muted);">💡 可上下拖曳或點選按鈕調整順序</span>
+          </div>
+          <div class="timeline" id="timeline-container">
+            <!-- 時間軸項目動態渲染 -->
+          </div>
+        </div>
+
+        <!-- 地圖區域 -->
+        <div class="planner-section" id="section-map">
+          <div class="map-container">
+            <div class="map-header">
+              🗺️ 示意地圖（僅作模擬區域標記對應，非真實地理導航）
+            </div>
+            <div class="map-viewport" id="map-viewport">
+              <!-- 地圖 Pin 點動態渲染 -->
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- ==========================================================================
+       彈出視窗 (Modals)
+       ========================================================================== -->
+  <!-- 建立新旅程 Modal -->
+  <div class="modal-overlay" id="modal-trip">
+    <div class="modal">
+      <div class="modal-header">
+        <h3>建立新旅程</h3>
+        <button style="background:none; border:none; font-size:1.2rem; cursor:pointer;" onclick="app.closeModal('modal-trip')">✕</button>
+      </div>
+      <form onsubmit="app.handleCreateTrip(event)">
+        <div class="form-group">
+          <label>旅程名稱 *</label>
+          <input type="text" id="trip-name" class="form-control" placeholder="例：東京美食五日遊" required>
+        </div>
+        <div class="form-group">
+          <label>目的地城市 *</label>
+          <input type="text" id="trip-city" class="form-control" placeholder="例：東京" required>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>開始日期 *</label>
+            <input type="date" id="trip-start-date" class="form-control" required>
+          </div>
+          <div class="form-group">
+            <label>結束日期 *</label>
+            <input type="date" id="trip-end-date" class="form-control" required>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>主要交通方式</label>
+            <select id="trip-transport" class="form-control">
+              <option value="public-transport">大眾運輸</option>
+              <option value="car-rental">自駕租車</option>
+              <option value="walking">徒步/單車</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>預算 (TWD)</label>
+            <input type="number" id="trip-budget" class="form-control" placeholder="15000" value="15000">
+          </div>
+        </div>
+        <div style="display: flex; justify-content: flex-end; gap: 0.5rem; margin-top: 1rem;">
+          <button type="button" class="btn btn-secondary" onclick="app.closeModal('modal-trip')">取消</button>
+          <button type="submit" class="btn btn-primary">建立旅程</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- 編輯/手動新增景點 Modal -->
+  <div class="modal-overlay" id="modal-place">
+    <div class="modal">
+      <div class="modal-header">
+        <h3 id="modal-place-title">新增景點</h3>
+        <button style="background:none; border:none; font-size:1.2rem; cursor:pointer;" onclick="app.closeModal('modal-place')">✕</button>
+      </div>
+      <form onsubmit="app.handleSavePlace(event)">
+        <input type="hidden" id="place-id">
+        <div class="form-group">
+          <label>景點名稱 *</label>
+          <input type="text" id="place-name" class="form-control" required>
+        </div>
+        <div class="form-group">
+          <label>地址或區域 (標示為示範資料)</label>
+          <input type="text" id="place-address" class="form-control">
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>預估停留時間 (分鐘)</label>
+            <input type="number" id="place-duration" class="form-control" value="60">
+          </div>
+          <div class="form-group">
+            <label>預估費用 (TWD)</label>
+            <input type="number" id="place-cost" class="form-control" value="0">
+          </div>
+        </div>
+        <div style="display: flex; justify-content: flex-end; gap: 0.5rem; margin-top: 1rem;">
+          <button type="button" class="btn btn-secondary" onclick="app.closeModal('modal-place')">取消</button>
+          <button type="submit" class="btn btn-primary">儲存景點</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Toast 訊息容器 -->
+  <div id="toast-container"></div>
+
+  <!-- ==========================================================================
+       JavaScript 核心 logic (storage.js, data.js, app.js 整合)
+       ========================================================================== -->
+  <script>
+    /* --------------------------------------------------------------------------
+       6. 資料模型與 7. 本機儲存 (storage.js & data.js)
+       -------------------------------------------------------------------------- */
+    const STORAGE_KEY = 'travel_planner_app_data_v1';
+
+    // 預設示範旅程資料 (6. Data Models)
+    const DEMO_DATA = {
+      trips: [
+        {
+          id: "trip-kyoto-001",
+          name: "京都秋日賞楓旅行 (示範)",
+          city: "京都",
+          startDate: "2026-11-10",
+          endDate: "2026-11-12",
+          transportMode: "public-transport",
+          preferences: ["文化", "美食", "拍照"],
+          totalBudget: 15000,
+          currency: "TWD",
+          placeIds: ["place-k-001", "place-k-002", "place-k-003", "place-k-004"],
+          itineraryIds: ["item-k-001", "item-k-002", "item-k-003", "item-k-004"]
+        }
+      ],
+      places: [
+        {
+          id: "place-k-001",
+          name: "清水寺 (清水舞台)",
+          address: "京都市東山区清水1丁目 (示範地址)",
+          category: "文化景點",
+          image: "https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?auto=format&fit=crop&w=400&q=80",
+          estimatedDuration: 90,
+          estimatedCost: 1200,
+          priority: 1,
+          notes: "網紅 IG 熱門打卡點，建議早起避開人潮",
+          verificationStatus: "confirmed",
+          isBackup: false
+        },
+        {
+          id: "place-k-002",
+          name: "伏見稻荷大社 (千本鳥居)",
+          address: "京都市伏見区深草藪之内町 (示範地址)",
+          category: "文化景點",
+          image: "https://images.unsplash.com/photo-1478436127897-769e1b3f0f36?auto=format&fit=crop&w=400&q=80",
+          estimatedDuration: 120,
+          estimatedCost: 0,
+          priority: 1,
+          notes: "拍攝千本鳥居光影",
+          verificationStatus: "confirmed",
+          isBackup: false
+        },
+        {
+          id: "place-k-003",
+          name: "錦市場 (京都廚房)",
+          address: "京都市中京区錦小路通 (示範地址)",
+          category: "在地美食",
+          image: "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?auto=format&fit=crop&w=400&q=80",
+          estimatedDuration: 60,
+          estimatedCost: 800,
+          priority: 2,
+          notes: "品嚐抹茶甜點與玉子燒",
+          verificationStatus: "unconfirmed",
+          isBackup: false
+        },
+        {
+          id: "place-k-004",
+          name: "嵐山竹林小徑",
+          address: "京都市右京区嵯峨小倉山田淵山町 (示範地址)",
+          category: "自然風光",
+          image: "https://images.unsplash.com/photo-1503899036084-c55cdd92da26?auto=format&fit=crop&w=400&q=80",
+          estimatedDuration: 90,
+          estimatedCost: 300,
+          priority: 3,
+          notes: "可搭乘嵯峨野小火車",
+          verificationStatus: "confirmed",
+          isBackup: true
+        }
+      ],
+      itineraryItems: [
+        {
+          id: "item-k-001",
+          tripDay: "2026-11-10",
+          placeId: "place-k-001",
+          startTime: "09:00",
+          endTime: "10:30",
+          durationMinutes: 90,
+          travelTimeFromPrevious: 0,
+          notes: "首站參觀",
+          isPlaceLocked: false,
+          isTimeLocked: false,
+          sortOrder: 1
+        },
+        {
+          id: "item-k-002",
+          tripDay: "2026-11-10",
+          placeId: "place-k-003",
+          startTime: "11:00",
+          endTime: "12:00",
+          durationMinutes: 60,
+          travelTimeFromPrevious: 30,
+          notes: "享用午餐",
+          isPlaceLocked: false,
+          isTimeLocked: false,
+          sortOrder: 2
+        },
+        {
+          id: "item-k-003",
+          tripDay: "2026-11-11",
+          placeId: "place-k-002",
+          startTime: "08:30",
+          endTime: "10:30",
+          durationMinutes: 120,
+          travelTimeFromPrevious: 0,
+          notes: "早起拍鳥居",
+          isPlaceLocked: true,
+          isTimeLocked: true,
+          sortOrder: 1
+        },
+        {
+          id: "item-k-004",
+          tripDay: "2026-11-12",
+          placeId: "place-k-004",
+          startTime: "14:00",
+          endTime: "15:30",
+          durationMinutes: 90,
+          travelTimeFromPrevious: 45,
+          notes: "嵐山半日遊",
+          isPlaceLocked: false,
+          isTimeLocked: false,
+          sortOrder: 1
+        }
+      ]
+    };
+
+    // Storage 儲存控制器
+    const Storage = {
+      load() {
+        try {
+          const raw = localStorage.getItem(STORAGE_KEY);
+          if (!raw) return DEMO_DATA;
+          return JSON.parse(raw);
+        } catch (e) {
+          console.error('JSON 解析失敗，載入預設資料', e);
+          return DEMO_DATA;
+        }
+      },
+      save(data) {
+        try {
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+          const tag = document.getElementById('save-status-tag');
+          if (tag) {
+            tag.textContent = '已儲存 (' + new Date().toLocaleTimeString() + ')';
+            tag.className = 'tag tag-green';
+          }
+        } catch (e) {
+          console.error('儲存至 localStorage 失敗', e);
+          app.toast('⚠️ 本機儲存失敗，容量可能已滿');
+        }
+      }
+    };
+
+    /* --------------------------------------------------------------------------
+       5. 應用程式核心邏輯 (app.js)
+       -------------------------------------------------------------------------- */
+    class TravelPlannerApp {
+      constructor() {
+        this.data = Storage.load();
+        this.currentTripId = null;
+        this.currentSelectedDay = null;
+        this.uploadedFiles = [];
+        this.draggedItemIndex = null;
+
+        this.init();
+      }
+
+      init() {
+        this.renderTripsList();
+        this.setupDragAndDrop();
+      }
+
+      // 頁面切換控制器 (5.1)
+      navigateTo(pageId) {
+        document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+        document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+
+        const targetPage = document.getElementById(pageId);
+        if (targetPage) targetPage.classList.add('active');
+
+        if (pageId === 'trips-page') document.getElementById('nav-trips').classList.add('active');
+        if (pageId === 'upload-page') document.getElementById('nav-upload').classList.add('active');
+        if (pageId === 'places-page') {
+          document.getElementById('nav-places').classList.add('active');
+          this.renderPlacesList();
+        }
+        if (pageId === 'planner-page') {
+          document.getElementById('nav-planner').classList.add('active');
+          this.renderPlanner();
+        }
+      }
+
+      toast(msg) {
+        const container = document.getElementById('toast-container');
+        const el = document.createElement('div');
+        el.className = 'toast';
+        el.textContent = msg;
+        container.appendChild(el);
+        setTimeout(() => el.remove(), 3000);
+      }
+
+      // 4.1 首頁 / 旅程管理
+      renderTripsList() {
+        const grid = document.getElementById('trips-grid');
+        grid.innerHTML = '';
+
+        if (this.data.trips.length === 0) {
+          grid.innerHTML = `<p style="grid-column: 1/-1; text-align:center; color: var(--text-muted); padding:2rem;">目前沒有旅程，請點擊上方按鈕建立或載入示範旅程。</p>`;
+          return;
+        }
+
+        this.data.trips.forEach(trip => {
+          const card = document.createElement('div');
+          card.className = 'card trip-card';
+          card.innerHTML = `
+            <div>
+              <div style="display:flex; justify-content:space-between; align-items:start;">
+                <h3>${this.escapeHtml(trip.name)}</h3>
+                <span class="tag tag-green">${this.escapeHtml(trip.city)}</span>
+              </div>
+              <p style="color: var(--text-muted); font-size: 0.85rem; margin-top:0.4rem;">
+                📅 ${trip.startDate} ~ ${trip.endDate}
+              </p>
+              <div class="trip-card-meta">
+                <span class="tag tag-gray">景點數: ${trip.placeIds.length}</span>
+                <span class="tag tag-gray">預算: NT$ ${trip.totalBudget}</span>
+              </div>
+            </div>
+            <div class="trip-card-footer">
+              <button class="btn btn-primary btn-sm" onclick="app.selectTrip('${trip.id}')">進入旅程規劃 →</button>
+              <button class="btn btn-danger btn-sm" onclick="app.deleteTrip('${trip.id}')">刪除</button>
+            </div>
+          `;
+          grid.appendChild(card);
+        });
+      }
+
+      openNewTripModal() {
+        document.getElementById('modal-trip').classList.add('active');
+      }
+
+      closeModal(id) {
+        document.getElementById(id).classList.remove('active');
+      }
+
+      handleCreateTrip(e) {
+        e.preventDefault();
+        const startDate = document.getElementById('trip-start-date').value;
+        const endDate = document.getElementById('trip-end-date').value;
+
+        if (new Date(startDate) > new Date(endDate)) {
+          alert('結束日期不能早於開始日期！');
+          return;
+        }
+
+        const newTrip = {
+          id: 'trip-' + Date.now(),
+          name: document.getElementById('trip-name').value,
+          city: document.getElementById('trip-city').value,
+          startDate: startDate,
+          endDate: endDate,
+          transportMode: document.getElementById('trip-transport').value,
+          preferences: [],
+          totalBudget: Number(document.getElementById('trip-budget').value) || 0,
+          currency: "TWD",
+          placeIds: [],
+          itineraryIds: []
+        };
+
+        this.data.trips.unshift(newTrip);
+        Storage.save(this.data);
+        this.closeModal('modal-trip');
+        this.renderTripsList();
+        this.selectTrip(newTrip.id);
+        this.toast('🎉 旅程建立成功！');
+      }
+
+      loadDemoTrip() {
+        this.data = JSON.parse(JSON.stringify(DEMO_DATA));
+        Storage.save(this.data);
+        this.renderTripsList();
+        this.selectTrip(DEMO_DATA.trips[0].id);
+        this.toast('⚡ 已成功載入「京都秋日賞楓」示範旅程');
+      }
+
+      deleteTrip(tripId) {
+        if (!confirm('確定要刪除這趟旅程嗎？此操作不可復原。')) return;
+        this.data.trips = this.data.trips.filter(t => t.id !== tripId);
+        Storage.save(this.data);
+        this.renderTripsList();
+        this.toast('已刪除旅程');
+      }
+
+      selectTrip(tripId) {
+        this.currentTripId = tripId;
+        const trip = this.getTrip();
+        if (!trip) return;
+
+        // 啟用導覽列按鈕
+        ['nav-upload', 'nav-places', 'nav-planner'].forEach(id => {
+          document.getElementById(id).disabled = false;
+        });
+
+        this.currentSelectedDay = trip.startDate;
+        this.navigateTo('upload-page');
+      }
+
+      getTrip() {
+        return this.data.trips.find(t => t.id === this.currentTripId);
+      }
+
+      // 4.2 截圖上傳與模擬 AI 辨識
+      setupDragAndDrop() {
+        const dropzone = document.getElementById('dropzone');
+        if (!dropzone) return;
+
+        ['dragenter', 'dragover'].forEach(eventName => {
+          dropzone.addEventListener(eventName, (e) => {
+            e.preventDefault();
+            dropzone.classList.add('dragover');
+          }, false);
+        });
+
+        ['dragleave', 'drop'].forEach(eventName => {
+          dropzone.addEventListener(eventName, (e) => {
+            e.preventDefault();
+            dropzone.classList.remove('dragover');
+          }, false);
+        });
+
+        dropzone.addEventListener('drop', (e) => {
+          const dt = e.dataTransfer;
+          const files = dt.files;
+          this.handleFiles(files);
+        });
+      }
+
+      handleFileSelect(e) {
+        this.handleFiles(e.target.files);
+      }
+
+      handleFiles(files) {
+        Array.from(files).forEach(file => {
+          if (file.type.startsWith('image/')) {
+            const url = URL.createObjectURL(file);
+            this.uploadedFiles.push({ file, url });
+          }
+        });
+        this.renderUploadPreviews();
+      }
+
+      renderUploadPreviews() {
+        const container = document.getElementById('preview-container');
+        const grid = document.getElementById('preview-grid');
+        const count = document.getElementById('preview-count');
+
+        if (this.uploadedFiles.length === 0) {
+          container.style.display = 'none';
+          return;
+        }
+
+        container.style.display = 'block';
+        count.textContent = this.uploadedFiles.length;
+        grid.innerHTML = '';
+
+        this.uploadedFiles.forEach((item, index) => {
+          const el = document.createElement('div');
+          el.className = 'preview-item';
+          el.innerHTML = `
+            <img src="${item.url}" alt="截圖預覽">
+            <button class="remove-btn" onclick="app.removeUpload(${index})">✕</button>
+          `;
+          grid.appendChild(el);
+        });
+      }
+
+      removeUpload(index) {
+        this.uploadedFiles.splice(index, 1);
+        this.renderUploadPreviews();
+      }
+
+      clearUploads() {
+        this.uploadedFiles = [];
+        this.renderUploadPreviews();
+      }
+
+      // 4.2 模擬 AI 辨識流程
+      startAiRecognition() {
+        document.getElementById('preview-container').style.display = 'none';
+        document.getElementById('ai-loading').style.display = 'block';
+
+        setTimeout(() => {
+          document.getElementById('ai-loading').style.display = 'none';
+
+          // 模擬從上傳截圖辨識出的景點資料
+          const mockExtractedPlaces = [
+            {
+              id: 'place-mock-' + Date.now() + '-1',
+              name: '金閣寺 (鹿苑寺)',
+              address: '京都市北区金閣寺町 (模擬辨識)',
+              category: '文化景點',
+              image: 'https://images.unsplash.com/photo-1545569341-9eb8b30979d9?auto=format&fit=crop&w=400&q=80',
+              estimatedDuration: 60,
+              estimatedCost: 500,
+              priority: 2,
+              notes: '從 Threads 截圖自動擷取',
+              verificationStatus: 'unconfirmed',
+              isBackup: false
+            },
+            {
+              id: 'place-mock-' + Date.now() + '-2',
+              name: '平安神宮 歐式庭園',
+              address: '京都市左京区岡崎西天王町 (模擬辨識)',
+              category: '自然景觀',
+              image: 'https://images.unsplash.com/photo-1570077188670-e3a8d69ac5ff?auto=format&fit=crop&w=400&q=80',
+              estimatedDuration: 45,
+              estimatedCost: 600,
+              priority: 3,
+              notes: '從 IG Reels 照片標籤模擬提取',
+              verificationStatus: 'unconfirmed',
+              isBackup: false
+            }
+          ];
+
+          const trip = this.getTrip();
+          mockExtractedPlaces.forEach(p => {
+            this.data.places.push(p);
+            trip.placeIds.push(p.id);
+
+            // 自動加至最後一天的行程
+            const newItem = {
+              id: 'item-' + Date.now() + Math.random().toString(36).substr(2, 4),
+              tripDay: trip.endDate,
+              placeId: p.id,
+              startTime: "16:00",
+              endTime: "17:00",
+              durationMinutes: p.estimatedDuration,
+              travelTimeFromPrevious: 20,
+              notes: "AI 自動帶入行程",
+              isPlaceLocked: false,
+              isTimeLocked: false,
+              sortOrder: 99
+            };
+            this.data.itineraryItems.push(newItem);
+            trip.itineraryIds.push(newItem.id);
+          });
+
+          Storage.save(this.data);
+          this.toast('✨ 模擬 AI 辨識完成！成功提取 2 個新景點');
+          this.navigateTo('places-page');
+        }, 1800);
+      }
+
+      // 4.3 景點確認清單頁面
+      renderPlacesList() {
+        const grid = document.getElementById('places-grid');
+        grid.innerHTML = '';
+
+        const trip = this.getTrip();
+        if (!trip) return;
+
+        const currentPlaces = this.data.places.filter(p => trip.placeIds.includes(p.id));
+
+        if (currentPlaces.length === 0) {
+          grid.innerHTML = `<p style="grid-column: 1/-1; text-align:center; color: var(--text-muted); padding:2rem;">目前沒有景點，請先上傳截圖進行辨識或點選上方手動新增。</p>`;
+          return;
+        }
+
+        currentPlaces.forEach(place => {
+          const card = document.createElement('div');
+          card.className = 'card place-card';
+
+          const isUnconfirmed = place.verificationStatus === 'unconfirmed';
+
+          card.innerHTML = `
+            <span class="place-status tag ${isUnconfirmed ? 'tag-orange' : 'tag-green'}">
+              ${isUnconfirmed ? '⚠️ 待確認資訊' : '✓ 已確認'}
+            </span>
+            <img class="place-card-img" src="${place.image || 'https://via.placeholder.com/400x200?text=無圖片'}" alt="${this.escapeHtml(place.name)}">
+            <div class="place-card-body">
+              <h3 style="margin-bottom:0.25rem;">${this.escapeHtml(place.name)}</h3>
+              <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.5rem;">📍 ${this.escapeHtml(place.address)}</p>
+              <div style="display:flex; gap:0.4rem; margin-bottom:0.75rem; flex-wrap:wrap;">
+                <span class="tag tag-gray">⏱️ ${place.estimatedDuration} 分鐘</span>
+                <span class="tag tag-gray">💰 NT$ ${place.estimatedCost}</span>
+                <span class="tag tag-gray">分類: ${place.category}</span>
+              </div>
+              <p style="font-size: 0.85rem; color: var(--text-main); margin-bottom: 1rem; flex:1;">${this.escapeHtml(place.notes || '無備註')}</p>
+              <div style="display:flex; gap:0.4rem; border-top:1px solid var(--border-color); padding-top:0.75rem;">
+                ${isUnconfirmed ? `<button class="btn btn-accent btn-sm" onclick="app.confirmPlace('${place.id}')">標記為已確認</button>` : ''}
+                <button class="btn btn-secondary btn-sm" onclick="app.openEditPlaceModal('${place.id}')">編輯</button>
+                <button class="btn btn-danger btn-sm" onclick="app.deletePlace('${place.id}')">刪除</button>
+              </div>
+            </div>
+          `;
+          grid.appendChild(card);
+        });
+      }
+
+      confirmPlace(placeId) {
+        const place = this.data.places.find(p => p.id === placeId);
+        if (place) {
+          place.verificationStatus = 'confirmed';
+          Storage.save(this.data);
+          this.renderPlacesList();
+          this.toast('已確認該景點資訊');
+        }
+      }
+
+      deletePlace(placeId) {
+        if (!confirm('確定要刪除此景點嗎？對應的行程也會一併移除。')) return;
+
+        this.data.places = this.data.places.filter(p => p.id !== placeId);
+        this.data.itineraryItems = this.data.itineraryItems.filter(i => i.placeId !== placeId);
+
+        const trip = this.getTrip();
+        if (trip) {
+          trip.placeIds = trip.placeIds.filter(id => id !== placeId);
+        }
+
+        Storage.save(this.data);
+        this.renderPlacesList();
+        this.toast('景點已移除');
+      }
+
+      openAddPlaceModal() {
+        document.getElementById('modal-place-title').textContent = '手動新增景點';
+        document.getElementById('place-id').value = '';
+        document.getElementById('place-name').value = '';
+        document.getElementById('place-address').value = '';
+        document.getElementById('place-duration').value = '60';
+        document.getElementById('place-cost').value = '0';
+        document.getElementById('modal-place').classList.add('active');
+      }
+
+      openEditPlaceModal(placeId) {
+        const place = this.data.places.find(p => p.id === placeId);
+        if (!place) return;
+
+        document.getElementById('modal-place-title').textContent = '編輯景點資訊';
+        document.getElementById('place-id').value = place.id;
+        document.getElementById('place-name').value = place.name;
+        document.getElementById('place-address').value = place.address;
+        document.getElementById('place-duration').value = place.estimatedDuration;
+        document.getElementById('place-cost').value = place.estimatedCost;
+        document.getElementById('modal-place').classList.add('active');
+      }
+
+      handleSavePlace(e) {
+        e.preventDefault();
+        const id = document.getElementById('place-id').value;
+        const name = document.getElementById('place-name').value;
+        const address = document.getElementById('place-address').value;
+        const duration = Number(document.getElementById('place-duration').value) || 60;
+        const cost = Number(document.getElementById('place-cost').value) || 0;
+
+        if (id) {
+          // 編輯
+          const place = this.data.places.find(p => p.id === id);
+          if (place) {
+            place.name = name;
+            place.address = address;
+            place.estimatedDuration = duration;
+            place.estimatedCost = cost;
+          }
+        } else {
+          // 新增
+          const newPlace = {
+            id: 'place-' + Date.now(),
+            name,
+            address,
+            category: '景點',
+            image: 'https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?auto=format&fit=crop&w=400&q=80',
+            estimatedDuration: duration,
+            estimatedCost: cost,
+            priority: 2,
+            notes: '使用者手動新增',
+            verificationStatus: 'confirmed',
+            isBackup: false
+          };
+          this.data.places.push(newPlace);
+
+          const trip = this.getTrip();
+          if (trip) {
+            trip.placeIds.push(newPlace.id);
+            // 同時新增至第一個行程日
+            const newItem = {
+              id: 'item-' + Date.now(),
+              tripDay: trip.startDate,
+              placeId: newPlace.id,
+              startTime: "13:00",
+              endTime: "14:00",
+              durationMinutes: duration,
+              travelTimeFromPrevious: 15,
+              notes: "手動新增之行程",
+              isPlaceLocked: false,
+              isTimeLocked: false,
+              sortOrder: 10
+            };
+            this.data.itineraryItems.push(newItem);
+            trip.itineraryIds.push(newItem.id);
+          }
+        }
+
+        Storage.save(this.data);
+        this.closeModal('modal-place');
+        this.renderPlacesList();
+        this.toast('景點資訊已儲存');
+      }
+
+      // 4.4 行程規劃主畫面與 5.3 時間衝突檢查
+      renderPlanner() {
+        const trip = this.getTrip();
+        if (!trip) return;
+
+        document.getElementById('planner-trip-name').textContent = trip.name;
+        document.getElementById('planner-trip-meta').textContent = `${trip.startDate} ~ ${trip.endDate} | 城市：${trip.city}`;
+
+        // 渲染日期頁籤
+        this.renderDaySelector(trip);
+
+        // 渲染每日行程時間軸
+        this.renderTimeline();
+
+        // 渲染示意地圖標記
+        this.renderMapPins();
+
+        // 計算預算
+        this.updateBudgetSummary();
+
+        // 觸發時間衝突檢查
+        this.checkTimeConflicts();
+      }
+
+      renderDaySelector(trip) {
+        const container = document.getElementById('day-selector');
+        container.innerHTML = '';
+
+        const days = this.getDatesInRange(trip.startDate, trip.endDate);
+        days.forEach((dayStr, idx) => {
+          const btn = document.createElement('button');
+          btn.className = `day-btn ${dayStr === this.currentSelectedDay ? 'active' : ''}`;
+          btn.textContent = `第 ${idx + 1} 天 (${dayStr.substr(5)})`;
+          btn.onclick = () => {
+            this.currentSelectedDay = dayStr;
+            this.renderPlanner();
+          };
+          container.appendChild(btn);
+        });
+      }
+
+      renderTimeline() {
+        const container = document.getElementById('timeline-container');
+        container.innerHTML = '';
+
+        const trip = this.getTrip();
+        if (!trip) return;
+
+        // 篩選出目前選擇日期的行程
+        let dayItems = this.data.itineraryItems.filter(i => trip.itineraryIds.includes(i.id) && i.tripDay === this.currentSelectedDay);
+        dayItems.sort((a, b) => a.sortOrder - b.sortOrder);
+
+        if (dayItems.length === 0) {
+          container.innerHTML = `<p style="text-align:center; color: var(--text-muted); padding:2rem;">本日尚無安排景點，可前往景點頁新增。</p>`;
+          return;
+        }
+
+        dayItems.forEach((item, index) => {
+          const place = this.data.places.find(p => p.id === item.placeId) || { name: '未知景點', estimatedCost: 0 };
+          const card = document.createElement('div');
+          card.className = `timeline-item ${item.hasConflict ? 'has-conflict' : ''}`;
+          card.draggable = true;
+          card.dataset.index = index;
+
+          // 綁定拖曳事件 (5.2)
+          card.ondragstart = (e) => this.handleDragStart(e, index);
+          card.ondragover = (e) => e.preventDefault();
+          card.ondrop = (e) => this.handleDrop(e, index);
+
+          card.innerHTML = `
+            <div style="cursor:grab; color:var(--text-muted);">☰</div>
+            <div class="time-badge">
+              <input type="time" value="${item.startTime}" onchange="app.updateItemTime('${item.id}', this.value)" style="border:none; background:transparent; font-weight:bold; font-family:inherit;">
+            </div>
+            <div class="item-content">
+              <div style="font-weight:700; display:flex; gap:0.5rem; align-items:center;">
+                ${this.escapeHtml(place.name)}
+                ${item.isPlaceLocked ? '🔒' : ''}
+              </div>
+              <div style="font-size:0.8rem; color:var(--text-muted);">
+                ⏱️ 停留 ${item.durationMinutes} 分鐘 | 預估交通: ${item.travelTimeFromPrevious || 15} 分鐘
+              </div>
+              ${item.hasConflict ? `<div style="font-size:0.75rem; color:#d9534f; margin-top:0.2rem;">⚠️ 警告：行程時間重疊或過於緊湊</div>` : ''}
+            </div>
+            <div class="item-actions">
+              <button class="btn btn-secondary btn-sm" onclick="app.toggleLock('${item.id}')">${item.isPlaceLocked ? '解鎖' : '鎖定'}</button>
+              <button class="btn btn-secondary btn-sm" onclick="app.moveItem('${item.id}', -1)">▲</button>
+              <button class="btn btn-secondary btn-sm" onclick="app.moveItem('${item.id}', 1)">▼</button>
+              <button class="btn btn-danger btn-sm" onclick="app.removeItineraryItem('${item.id}')">✕</button>
+            </div>
+          `;
+          container.appendChild(card);
+        });
+      }
+
+      // 5.2 拖曳與排序
+      handleDragStart(e, index) {
+        this.draggedItemIndex = index;
+        e.dataTransfer.effectAllowed = 'move';
+      }
+
+      handleDrop(e, targetIndex) {
+        e.preventDefault();
+        if (this.draggedItemIndex === null || this.draggedItemIndex === targetIndex) return;
+
+        const trip = this.getTrip();
+        let dayItems = this.data.itineraryItems.filter(i => trip.itineraryIds.includes(i.id) && i.tripDay === this.currentSelectedDay);
+        dayItems.sort((a, b) => a.sortOrder - b.sortOrder);
+
+        const movedItem = dayItems[this.draggedItemIndex];
+        dayItems.splice(this.draggedItemIndex, 1);
+        dayItems.splice(targetIndex, 0, movedItem);
+
+        // 重新分配 sortOrder
+        dayItems.forEach((item, idx) => {
+          item.sortOrder = idx + 1;
+        });
+
+        Storage.save(this.data);
+        this.renderTimeline();
+        this.renderMapPins();
+        this.toast('已更新景點順序');
+      }
+
+      moveItem(itemId, direction) {
+        const trip = this.getTrip();
+        let dayItems = this.data.itineraryItems.filter(i => trip.itineraryIds.includes(i.id) && i.tripDay === this.currentSelectedDay);
+        dayItems.sort((a, b) => a.sortOrder - b.sortOrder);
+
+        const idx = dayItems.findIndex(i => i.id === itemId);
+        if (idx === -1) return;
+
+        const targetIdx = idx + direction;
+        if (targetIdx < 0 || targetIdx >= dayItems.length) return;
+
+        const temp = dayItems[idx].sortOrder;
+        dayItems[idx].sortOrder = dayItems[targetIdx].sortOrder;
+        dayItems[targetIdx].sortOrder = temp;
+
+        Storage.save(this.data);
+        this.renderTimeline();
+        this.renderMapPins();
+      }
+
+      // 5.3 時間編輯與衝突檢查
+      updateItemTime(itemId, newStartTime) {
+        const item = this.data.itineraryItems.find(i => i.id === itemId);
+        if (!item) return;
+
+        if (item.isTimeLocked) {
+          if (!confirm('此項目已被鎖定，確定要強制修改時間嗎？')) {
+            this.renderTimeline();
+            return;
+          }
+        }
+
+        item.startTime = newStartTime;
+        Storage.save(this.data);
+        this.checkTimeConflicts();
+        this.renderTimeline();
+        this.toast('時間已更新');
+      }
+
+      checkTimeConflicts() {
+        const trip = this.getTrip();
+        if (!trip) return;
+
+        let dayItems = this.data.itineraryItems.filter(i => trip.itineraryIds.includes(i.id) && i.tripDay === this.currentSelectedDay);
+        dayItems.sort((a, b) => a.startTime.localeCompare(b.startTime));
+
+        let hasAnyConflict = false;
+
+        for (let i = 0; i < dayItems.length; i++) {
+          dayItems[i].hasConflict = false;
+          if (i > 0) {
+            const prev = dayItems[i - 1];
+            const prevEnd = this.addMinutes(prev.startTime, prev.durationMinutes);
+            if (dayItems[i].startTime < prevEnd) {
+              dayItems[i].hasConflict = true;
+              prev.hasConflict = true;
+              hasAnyConflict = true;
+            }
+          }
+        }
+
+        // 觸發 AI 建議面板 (4.5)
+        const aiPanel = document.getElementById('ai-panel');
+        if (hasAnyConflict) {
+          aiPanel.style.display = 'block';
+          document.getElementById('ai-panel-text').textContent = '⚠️ 偵測到行程時間發生重疊衝突！建議點擊「套用建議」進行自動時間微調。';
+        } else {
+          aiPanel.style.display = 'none';
+        }
+      }
+
+      applyAiSuggestion() {
+        const trip = this.getTrip();
+        if (!trip) return;
+
+        let dayItems = this.data.itineraryItems.filter(i => trip.itineraryIds.includes(i.id) && i.tripDay === this.currentSelectedDay);
+        dayItems.sort((a, b) => a.sortOrder - b.sortOrder);
+
+        let currentTime = "09:00";
+        dayItems.forEach(item => {
+          if (!item.isTimeLocked) {
+            item.startTime = currentTime;
+          }
+          currentTime = this.addMinutes(item.startTime, item.durationMinutes + (item.travelTimeFromPrevious || 20));
+        });
+
+        Storage.save(this.data);
+        this.renderPlanner();
+        this.toast('🤖 AI 已經重構今日行程時間線');
+      }
+
+      // 5.4 鎖定功能
+      toggleLock(itemId) {
+        const item = this.data.itineraryItems.find(i => i.id === itemId);
+        if (item) {
+          item.isPlaceLocked = !item.isPlaceLocked;
+          item.isTimeLocked = item.isPlaceLocked;
+          Storage.save(this.data);
+          this.renderTimeline();
+          this.toast(item.isPlaceLocked ? '已鎖定該項目' : '已解除鎖定');
+        }
+      }
+
+      removeItineraryItem(itemId) {
+        this.data.itineraryItems = this.data.itineraryItems.filter(i => i.id !== itemId);
+        const trip = this.getTrip();
+        if (trip) trip.itineraryIds = trip.itineraryIds.filter(id => id !== itemId);
+
+        Storage.save(this.data);
+        this.renderPlanner();
+        this.toast('已從行程中移除');
+      }
+
+      // 4.4 示意地圖標記對應
+      renderMapPins() {
+        const viewport = document.getElementById('map-viewport');
+        viewport.innerHTML = '';
+
+        const trip = this.getTrip();
+        if (!trip) return;
+
+        let dayItems = this.data.itineraryItems.filter(i => trip.itineraryIds.includes(i.id) && i.tripDay === this.currentSelectedDay);
+        dayItems.sort((a, b) => a.sortOrder - b.sortOrder);
+
+        // 預設示意座標分佈 (靜態呈現)
+        const mockPositions = [
+          { top: '30%', left: '40%' },
+          { top: '55%', left: '60%' },
+          { top: '40%', left: '25%' },
+          { top: '70%', left: '35%' },
+          { top: '25%', left: '70%' }
+        ];
+
+        dayItems.forEach((item, idx) => {
+          const place = this.data.places.find(p => p.id === item.placeId);
+          const pos = mockPositions[idx % mockPositions.length];
+
+          const pin = document.createElement('div');
+          pin.className = 'map-pin';
+          pin.style.top = pos.top;
+          pin.style.left = pos.left;
+          pin.textContent = idx + 1;
+          pin.title = `${idx + 1}. ${place ? place.name : '景點'}`;
+
+          pin.onclick = () => {
+            alert(`📍 景點 ${idx + 1}：${place ? place.name : ''}\n停留時間：${item.durationMinutes} 分鐘`);
+          };
+
+          viewport.appendChild(pin);
+        });
+      }
+
+      updateBudgetSummary() {
+        const trip = this.getTrip();
+        if (!trip) return;
+
+        let dayItems = this.data.itineraryItems.filter(i => trip.itineraryIds.includes(i.id) && i.tripDay === this.currentSelectedDay);
+        let dayTotal = 0;
+
+        dayItems.forEach(item => {
+          const place = this.data.places.find(p => p.id === item.placeId);
+          if (place) dayTotal += (place.estimatedCost || 0);
+        });
+
+        document.getElementById('planner-budget-summary').textContent = `NT$ ${dayTotal.toLocaleString()} / NT$ ${trip.totalBudget.toLocaleString()}`;
+      }
+
+      switchMobileTab(tab) {
+        document.getElementById('mtab-timeline').classList.toggle('active', tab === 'timeline');
+        document.getElementById('mtab-map').classList.toggle('active', tab === 'map');
+
+        document.getElementById('section-timeline').classList.toggle('mobile-active', tab === 'timeline');
+        document.getElementById('section-map').classList.toggle('mobile-active', tab === 'map');
+      }
+
+      // Phase 5：匯出功能 (CSV & PDF/Print)
+      exportCsv() {
+        const trip = this.getTrip();
+        if (!trip) return;
+
+        let csvContent = "data:text/csv;charset=utf-8,\uFEFF";
+        csvContent += "日期,時間,景點名稱,預估停留(分),預估費用(TWD),備註\n";
+
+        const items = this.data.itineraryItems.filter(i => trip.itineraryIds.includes(i.id));
+        items.sort((a, b) => a.tripDay.localeCompare(b.tripDay) || a.sortOrder - b.sortOrder);
+
+        items.forEach(item => {
+          const place = this.data.places.find(p => p.id === item.placeId) || {};
+          const row = [
+            item.tripDay,
+            item.startTime,
+            `"${place.name || ''}"`,
+            item.durationMinutes,
+            place.estimatedCost || 0,
+            `"${item.notes || ''}"`
+          ].join(",");
+          csvContent += row + "\n";
+        });
+
+        const encodedUri = encodeURI(csvContent);
+        const link = document.createElement("a");
+        link.setAttribute("href", encodedUri);
+        link.setAttribute("download", `${trip.name}_行程規劃.csv`);
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        this.toast('📊 已成功匯出 CSV 檔案');
+      }
+
+      exportPdf() {
+        window.print();
+      }
+
+      // 輔助工具
+      addMinutes(timeStr, mins) {
+        const [h, m] = timeStr.split(':').map(Number);
+        const date = new Date(2000, 0, 1, h, m + mins);
+        const resH = String(date.getHours()).padStart(2, '0');
+        const resM = String(date.getMinutes()).padStart(2, '0');
+        return `${resH}:${resM}`;
+      }
+
+      getDatesInRange(startDate, endDate) {
+        const dates = [];
+        let curr = new Date(startDate);
+        const end = new Date(endDate);
+        while (curr <= end) {
+          dates.push(curr.toISOString().split('T')[0]);
+          curr.setDate(curr.getDate() + 1);
+        }
+        return dates;
+      }
+
+      escapeHtml(str) {
+        return String(str || '').replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+      }
+    }
+
+    // 初始化 App 全域實例
+    const app = new TravelPlannerApp();
+  </script>
+</body>
+</html>
